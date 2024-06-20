@@ -8,7 +8,6 @@ import enum
 class MeasType(enum.Enum):
     Ref = 0
     Sam = 1
-    Other = 2
 
 
 class Measurement:
@@ -56,10 +55,8 @@ class Measurement:
         # set measurement type
         if "ref" in str(self.filepath.stem).lower():
             self.meas_type = MeasType.Ref
-        elif "sam" in str(self.filepath.stem).lower():
-            self.meas_type = MeasType.Sam
         else:
-            self.meas_type = MeasType.Other
+            self.meas_type = MeasType.Sam
 
         # set position
         try:
@@ -96,9 +93,6 @@ class Measurement:
         if self._data_td is None:
             self._data_td = read_file(self.filepath)
 
-        if self._data_td[0, 0] < 1:
-            self._data_td[:, 0] *= 1E12
-
         self.do_preprocess()
 
         return self._data_td
@@ -115,7 +109,6 @@ class Measurement:
 
         dt = float(np.mean(np.diff(t)))
         freqs, data_fd = fftfreq(n=len(t), d=dt), fft(y)
-
         if pos_freqs_only:
             pos_slice = freqs >= 0
             self._data_fd = np.array([freqs[pos_slice], data_fd[pos_slice]]).T

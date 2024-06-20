@@ -1,16 +1,19 @@
-import sys
+import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import filedialog
 import json
 import os
 from taipan_measurement import Measurement, MeasType
 from pathlib import Path
+from image import Image
 
 # Settings
 reset_prev_data_dir = False
 pp_config = {"sub_offset": False,
              "en_windowing": False,
              "normalize": False}
+thickness = 1000  # in um
+selected_frequency = 0.650  # in THz
 
 
 def main():
@@ -34,6 +37,9 @@ def main():
     else:
         data_dir = Path(config["prev_data_dir"])
 
+    print(f"Using data from {data_dir}")
+    print("Change the path in config.json to use a different location\n")
+
     all_measurements = []
     for file in data_dir.glob("**/*.txt"):
         try:
@@ -45,9 +51,12 @@ def main():
     sams = [meas for meas in all_measurements if meas.meas_type == MeasType.Sam]
 
     print(f"{len(all_measurements)} taipan measurement files found.", end=" ")
-    print(f"{len(refs)} reference measurements, {len(sams)} sample measurements)")
+    print(f"{len(refs)} reference measurements, {len(sams)} sample measurements")
 
+    image = Image(all_measurements, thickness, selected_frequency)
+    image.plot_image()
 
+    plt.show()
 
 
 if __name__ == '__main__':
