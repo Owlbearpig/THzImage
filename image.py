@@ -300,6 +300,7 @@ class Image:
         if self.options["invert_y"]:
             ax.invert_yaxis()
 
+        ax.set_title(f"{self.shown_quantity.name} at {self.selected_frequency} THz")
         ax.set_xlabel("x (mm)")
         ax.set_ylabel("y (mm)")
 
