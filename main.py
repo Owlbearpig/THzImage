@@ -5,7 +5,7 @@ import json
 import os
 from taipan_measurement import Measurement, MeasType
 from pathlib import Path
-from image import Image
+from image import Image, ShownQuantity
 
 # Settings
 reset_prev_data_dir = False
@@ -13,7 +13,8 @@ pp_config = {"sub_offset": False,
              "en_windowing": False,
              "normalize": False}
 thickness = 1000  # in um
-selected_frequency = 0.650  # in THz
+selected_frequency = 0.850  # in THz
+image_options = {"quantity": ShownQuantity.P2p}
 
 
 def main():
@@ -53,7 +54,7 @@ def main():
     print(f"{len(all_measurements)} taipan measurement files found.", end=" ")
     print(f"{len(refs)} reference measurements, {len(sams)} sample measurements")
 
-    image = Image(all_measurements, thickness, selected_frequency)
+    image = Image(all_measurements, thickness, selected_frequency, image_options)
     image.plot_image()
 
     plt.show()

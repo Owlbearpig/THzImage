@@ -9,11 +9,13 @@ from scipy.constants import c as c0
 
 c_thz = c0 / 1e6
 
-class Image:
-    class ShownQuantity(enum.Enum):
-        P2p = 0
-        AbsorptionCoefficient = 1
 
+class ShownQuantity(enum.Enum):
+    P2p = 0
+    AbsorptionCoefficient = 1
+
+
+class Image:
     time_axis = None
     cache_path = None
     all_points = None
@@ -56,8 +58,13 @@ class Image:
         if "invert_y" not in options_.keys():
             options_["invert_y"] = False
 
+        if "quantity" not in options_.keys():
+            self.shown_quantity = ShownQuantity.AbsorptionCoefficient
+        else:
+            self.shown_quantity = options_["quantity"]
+
         self.options.update(options_)
-        self.shown_quantity = self.ShownQuantity.AbsorptionCoefficient
+
 
     def _set_measurements(self):
         refs, sams, other = self._filter_measurements(self.measurements)
@@ -184,7 +191,7 @@ class Image:
         d = self.sample_thickness
         f_slice = self.freq_axis > 0
         freqs = self.freq_axis[f_slice]
-        omega = 2*np.pi*freqs
+        omega = 2 * np.pi * freqs
         ref_td, ref_fd = self.get_ref(coords=measurement.position, both=True)
 
         sam_td = self.image_data_td[*self._coords_to_idx(*pos)]
@@ -198,10 +205,10 @@ class Image:
         phi_sam = phase_correction(sam_fd)[f_slice, 1]
         phi_ref = phase_correction(ref_fd)[f_slice, 1]
 
-        n = 1 + c_thz*(phi_sam-phi_ref)/(omega*d)
+        n = 1 + c_thz * (phi_sam - phi_ref) / (omega * d)
 
         # um -> cm
-        alpha = -(1e4*2/d)*np.log(np.abs(sam_fd[f_slice, 1]/ref_fd[f_slice, 1])*(1+n)**2 / (4*n))
+        alpha = -(1e4 * 2 / d) * np.log(np.abs(sam_fd[f_slice, 1] / ref_fd[f_slice, 1]) * (1 + n) ** 2 / (4 * n))
         f_idx = np.argmin(np.abs(self.selected_frequency - freqs))
 
         return alpha[f_idx]
@@ -210,10 +217,10 @@ class Image:
         data_td = self.image_data_td
 
         grid_vals = self._empty_grid.copy()
-        if self.shown_quantity == self.ShownQuantity.P2p:
+        if self.shown_quantity == ShownQuantity.P2p:
             grid_vals = np.max(data_td, axis=2) - np.min(data_td, axis=2)
 
-        elif self.shown_quantity == self.ShownQuantity.AbsorptionCoefficient:
+        elif self.shown_quantity == ShownQuantity.AbsorptionCoefficient:
             for i, measurement in enumerate(self.sams):
                 pos = measurement.position
                 if i % 100 == 0:
@@ -237,7 +244,7 @@ class Image:
         return filtered_grid
 
     def plot_image(self, img_extent=None):
-        if self.shown_quantity == self.ShownQuantity.P2p:
+        if self.shown_quantity == ShownQuantity.P2p:
             label = "Peak to peak"
         else:
             label = "Absorption coefficient (1/cm)"
