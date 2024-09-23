@@ -194,7 +194,7 @@ class Image:
         omega = 2 * np.pi * freqs
         ref_td, ref_fd = self.get_ref(coords=measurement.position, both=True)
 
-        sam_td = self.image_data_td[*self._coords_to_idx(*pos)]
+        sam_td = self.image_data_td[self._coords_to_idx(*pos)]
         sam_td = np.array([self.time_axis, sam_td]).T
 
         sam_td[:, 1] -= np.mean(sam_td[:10, 1])
@@ -300,7 +300,9 @@ class Image:
         if self.options["invert_y"]:
             ax.invert_yaxis()
 
-        ax.set_title(f"{self.shown_quantity.name} at {self.selected_frequency} THz")
+        if self.shown_quantity == ShownQuantity.AbsorptionCoefficient:
+            ax.set_title(f"{self.shown_quantity.name} at {self.selected_frequency} THz")
+
         ax.set_xlabel("x (mm)")
         ax.set_ylabel("y (mm)")
 
